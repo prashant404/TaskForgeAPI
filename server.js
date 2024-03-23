@@ -22,7 +22,7 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
   .catch(err => console.error(err));
 
 // Get port from environment variable or use default port 5000
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tasks', require('./routes/tasks')); // Add routes for tasks
