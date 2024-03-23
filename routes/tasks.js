@@ -1,4 +1,3 @@
-// routes/tasks.js
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
@@ -11,13 +10,24 @@ const User = require('../models/user');
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    const tasks = await Task.find({ user: req.user.id }).populate('user', 'username');
+    const sortBy = req.query.sortBy; // Get sortBy query parameter from the request
+    let tasks;
+
+    if (sortBy === "priority") {
+      tasks = await Task.find({ user: req.user.id }).sort({ priority: -1 }); // Sort by priority descending
+    } else if (sortBy === "dateAdded") {
+      tasks = await Task.find({ user: req.user.id }).sort({ createdAt: -1 }); // Sort by createdAt descending
+    } else {
+      tasks = await Task.find({ user: req.user.id }); // Default: return tasks sorted by order of adding
+    }
+
     res.json(tasks);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
+
 // @route   POST /api/tasks
 // @desc    Create a task
 // @access  Private
@@ -60,7 +70,6 @@ router.post('/', auth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 
 // Update the PUT endpoint to handle taskData object
 router.put('/:id', auth, async (req, res) => {
