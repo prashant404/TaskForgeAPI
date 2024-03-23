@@ -21,13 +21,20 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error(err));
 
+// Get port from environment variable or use default port 5000
+const PORT = process.env.PORT || 5000;
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tasks', require('./routes/tasks')); // Add routes for tasks
 app.use('/api/teams', require('./routes/teams')); // Add routes for teams
 
 // Start Server
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log('Backend deployment successful.'); // Log success message for backend deployment
+});
+
+// Send success message to the client
+app.get('/', (req, res) => {
+  res.send('Backend deployment successful.'); // Send success message to the client
 });
