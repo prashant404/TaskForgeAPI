@@ -186,4 +186,50 @@ router.get('/:teamId', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/tasks
+// @desc    Get all personal tasks
+// @access  Private
+router.get('/', auth, async (req, res) => {
+  try {
+    const sortBy = req.query.sortBy; // Get sortBy query parameter from the request
+    let tasks;
+
+    if (sortBy === "priority") {
+      tasks = await Task.find({ user: req.user.id }).sort({ priority: -1 }); // Sort by priority descending
+    } else if (sortBy === "dateAdded") {
+      tasks = await Task.find({ user: req.user.id }).sort({ createdAt: -1 }); // Sort by createdAt descending
+    } else {
+      tasks = await Task.find({ user: req.user.id }); // Default: return tasks sorted by order of adding
+    }
+
+    res.json(tasks);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Update task status
+router.put("/:id/status", auth, async (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const { completed } = req.body;
+
+    const task = await Task.findByIdAndUpdate(
+      taskId,
+      { completed },
+      { new: true }
+    );
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    res.status(200).json(task);
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 module.exports = router;
